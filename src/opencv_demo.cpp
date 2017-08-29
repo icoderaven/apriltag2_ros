@@ -152,8 +152,7 @@ int main(int argc, char *argv[])
         zarray_destroy(detections);
 
         imshow("Tag Detections", frame);
-        if (waitKey(30) >= 0)
-            break;
+        waitKey(30);
     }
 
     apriltag_detector_destroy(td);

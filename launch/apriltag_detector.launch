@@ -1,0 +1,9 @@
+<launch>
+  <arg name="params_file" default="$(find apriltag2_ros)/config/params.yaml"/>
+	<arg name="image_topic" default="/mv_25000785_camera/mv_25000785/image_rect"/>
+    <node pkg="apriltag2_ros" type="tag_detector_node" name="apriltag_detector" output="screen">
+      <param name="params_file" value="$(arg params_file)"/>
+      <remap from="/apriltag_detector/image_raw" to="$(arg image_topic)"/>
+    </node>
+
+</launch>

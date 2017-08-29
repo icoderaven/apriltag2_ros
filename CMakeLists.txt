@@ -8,11 +8,11 @@ add_compile_options(-std=c++11)
 find_package(catkin REQUIRED COMPONENTS 
 apriltag2
 roscpp image_transport cv_bridge image_geometry
-  std_msgs tf2_ros rospy geometry_msgs tf)
+message_generation  std_msgs rospy geometry_msgs)
 
 ## System dependencies are found with CMake's conventions
 find_package(OpenCV REQUIRED)
-
+find_package(Eigen3 REQUIRED)
 ################################################
 ## Declare ROS messages, services and actions ##
 ################################################
@@ -65,7 +65,7 @@ catkin_package(
   INCLUDE_DIRS include
 #  LIBRARIES apriltag2_ros
   CATKIN_DEPENDS apriltag2
-  DEPENDS opencv
+  DEPENDS OpenCV EIGEN3
 )
 
 ###########
@@ -78,6 +78,7 @@ include_directories(
  include
  ${catkin_INCLUDE_DIRS}
  ${OpenCV_INCLUDE_DIRS}
+ ${EIGEN3_INCLUDE_DIRS}
 )
 
 
@@ -85,12 +86,6 @@ include_directories(
 ## With catkin_make all packages are built within a single CMake context
 ## The recommended prefix ensures that target names across packages don't collide
 add_executable(test_node src/opencv_demo.cpp)
-
-## Rename C++ executable without prefix
-## The above recommended prefix causes long target names, the following renames the
-## target back to the shorter version for ease of user use
-## e.g. "rosrun someones_pkg node" instead of "rosrun someones_pkg someones_pkg_node"
-# set_target_properties(${PROJECT_NAME}_node PROPERTIES OUTPUT_NAME node PREFIX "")
 
 ## Add cmake target dependencies of the executable
 ## same as for the library above
@@ -102,37 +97,34 @@ target_link_libraries(test_node
    ${OpenCV_LIBRARIES}
  )
 
+ add_executable(tag_detector_node src/tag_detector_node.cpp src/TagDetectorRosWrapper.cpp)
+ add_dependencies(tag_detector_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+ target_link_libraries(tag_detector_node
+   ${catkin_LIBRARIES}
+   ${OpenCV_LIBRARIES}
+   yaml-cpp
+ )
+
 #############
 ## Install ##
 #############
 
-# all install targets should use catkin DESTINATION variables
-# See http://ros.org/doc/api/catkin/html/adv_user_guide/variables.html
-
-## Mark executable scripts (Python etc.) for installation
-## in contrast to setup.py, you can choose the destination
-# install(PROGRAMS
-#   scripts/my_python_script
-#   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
-# )
-
 ## Mark executables and/or libraries for installation
-# install(TARGETS ${PROJECT_NAME} ${PROJECT_NAME}_node
-#   ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
-#   LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
-#   RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
-# )
+install(TARGETS test_node tag_detector_node
+   ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
+   LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
+   RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
+)
 
 ## Mark cpp header files for installation
-# install(DIRECTORY include/${PROJECT_NAME}/
-#   DESTINATION ${CATKIN_PACKAGE_INCLUDE_DESTINATION}
-#   FILES_MATCHING PATTERN "*.h"
-#   PATTERN ".svn" EXCLUDE
-# )
+install(DIRECTORY include/${PROJECT_NAME}/
+  DESTINATION ${CATKIN_PACKAGE_INCLUDE_DESTINATION}
+  FILES_MATCHING PATTERN "*.h"
+  PATTERN ".svn" EXCLUDE
+)
 
 ## Mark other files for installation (e.g. launch and bag files, etc.)
-# install(FILES
-#   # myfile1
-#   # myfile2
-#   DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}
-# )
+install(FILES
+  "launch/*.launch"
+  DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}
+)

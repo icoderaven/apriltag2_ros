@@ -1,0 +1,9 @@
+apriltag_tracker_params:
+  family: "tag36h11"    #AprilTag family
+  do_debug: false       #Enable publishing of drawn overlay
+  threads: 4            #Use this many CPU threads
+  decimate: 1.0         #Decimate input image by this factor
+  blur: 0.0             #Apply low-pass blur with this sigma to input
+  refine_edges: true    #Spend more time trying to align edges of tags
+  refine_decode: false  #Spend more time trying to decode tags
+  refine_pose: false    #Spend more time trying to precisely localize tags

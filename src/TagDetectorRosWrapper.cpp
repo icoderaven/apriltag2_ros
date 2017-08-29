@@ -14,9 +14,15 @@ TagDetectorRosWrapper::TagDetectorRosWrapper(const std::string &config_file)
     else if (params_.family == "tag25h7")
         family_ = tag25h7_create();
     else
-            throw(std::runtime_error("Unsupported/not implemented family"));
-    
+        throw(std::runtime_error("Unsupported/not implemented family"));
+
     detector_ = apriltag_detector_create();
+    detector_->quad_decimate = params_.decimate;
+    detector_->quad_sigma = params_.blur;
+    detector_->nthreads = params_.threads;
+    detector_->refine_edges = params_.refine_edges;
+    detector_->refine_decode = params_.refine_decode;
+    detector_->refine_pose = params_.refine_pose;
     apriltag_detector_add_family(detector_, family_);
 }
 
@@ -26,14 +32,24 @@ TagDetectorRosWrapper::TagDetectorRosWrapper(const std::string &config_file, con
     it_ = std::make_shared<image_transport::ImageTransport>(nh);
     readConfig(config_file);
     if (params_.family == "tag36h11")
-    {
         family_ = tag36h11_create();
-    }
+    else if (params_.family == "tag36h10")
+        family_ = tag36h10_create();
+    else if (params_.family == "tag36artoolkit")
+        family_ = tag36artoolkit_create();
+    else if (params_.family == "tag25h9")
+        family_ = tag25h9_create();
+    else if (params_.family == "tag25h7")
+        family_ = tag25h7_create();
     else
-    {
         throw(std::runtime_error("Unsupported/not implemented family"));
-    }
     detector_ = apriltag_detector_create();
+    detector_->quad_decimate = params_.decimate;
+    detector_->quad_sigma = params_.blur;
+    detector_->nthreads = params_.threads;
+    detector_->refine_edges = params_.refine_edges;
+    detector_->refine_decode = params_.refine_decode;
+    detector_->refine_pose = params_.refine_pose;
     apriltag_detector_add_family(detector_, family_);
     initPublishers();
     initSubscribers();
@@ -107,7 +123,7 @@ void TagDetectorRosWrapper::callback(const sensor_msgs::ImageConstPtr &image_msg
         return;
     }
     cv::Mat debug_img;
-    if(params_.do_debug)
+    if (params_.do_debug)
         cv::cvtColor(cv_ptr->image, debug_img, CV_GRAY2BGR);
 
     // Make an image_u8_t header for the Mat data

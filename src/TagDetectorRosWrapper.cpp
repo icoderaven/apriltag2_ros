@@ -106,16 +106,15 @@ void TagDetectorRosWrapper::callback(const sensor_msgs::ImageConstPtr &image_msg
         ROS_ERROR("cv_bridge exception: %s", e.what());
         return;
     }
-    cv::Mat curr_img;
     cv::Mat debug_img;
-    cv_ptr->image.copyTo(curr_img);
-    cv::cvtColor(cv_ptr->image, debug_img, CV_GRAY2BGR);
+    if(params_.do_debug)
+        cv::cvtColor(cv_ptr->image, debug_img, CV_GRAY2BGR);
 
     // Make an image_u8_t header for the Mat data
-    image_u8_t im = {.width = curr_img.cols,
-                     .height = curr_img.rows,
-                     .stride = curr_img.cols,
-                     .buf = curr_img.data};
+    image_u8_t im = {.width = cv_ptr->image.cols,
+                     .height = cv_ptr->image.rows,
+                     .stride = cv_ptr->image.cols,
+                     .buf = cv_ptr->image.data};
 
     zarray_t *detections = apriltag_detector_detect(detector_, &im);
 

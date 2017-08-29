@@ -24,7 +24,7 @@ struct apriltag_params
       : family("tag36h11"),
         tag_size(1.0),
         K(cv::Matx33d::eye()),
-        D(cv::Mat(4, 1, CV_64FC1)),
+        D(cv::Mat::zeros(4, 1, CV_64FC1)),
         do_debug(false),
         threads(4),
         decimate(1.0),
